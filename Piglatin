@@ -1,0 +1,210 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+// Protocalls for functions
+string getMenuOption();
+string translateLine(string);
+string translateWord(string);
+string getNextWord(string, int);
+bool isVowel(char);
+bool isPunctuation(char);
+void splitWord(string, int, string &, string &);
+
+
+int main()
+{
+    string choice, sentence, newsentence;
+
+    ifstream infile;
+    ofstream outfile;
+
+    infile.open("Program5Input.txt");
+    outfile.open("Program5Output.txt");
+
+    choice = getMenuOption();
+
+    if (choice == "1")
+    {
+        while (!infile.eof())
+        {
+            getline(infile, sentence);
+            newsentence = translateLine(sentence);
+            outfile << newsentence << endl;
+        }
+        cout << "File has been processed. \n\n";
+        infile.close();
+        outfile.close();
+    }
+
+    else if (choice == "2")
+    {
+        cout << "Your sentence:" << endl;
+        getline(cin, sentence);
+        newsentence = translateLine(sentence);
+        cout << newsentence << "\n\n";
+    }
+
+    system("pause");
+    return 0;
+}
+string getMenuOption()
+{
+    string choice;
+
+    cout << "\t Menu:" << endl;
+    cout << "============================" << endl;
+    cout << "[1] to process a file" << endl;
+    cout << "[2] to process a single sentence" << endl;
+    cout << "============================" << endl;
+    cout << "Your choice: ";
+    getline(cin, choice);
+while (choice != "1" && choice != "2")
+    {
+        cout << " "Error" \n";
+        getline(cin, choice);
+    }
+
+
+    return choice;
+}
+
+// translates the user sentence or the file into pig-latin.
+string translateLine(string sentence)
+{
+    int length = sentence.length();
+    int placeHolder = 0;
+    string word;
+    string newWord = "";
+    string newsentence = "";
+
+    while (placeHolder < length)
+    {
+        word = getNextWord(sentence, placeHolder);
+        placeHolder += word.length() + 1;
+        newWord = translateWord(word);
+        newsentence += newWord + " ";
+    }
+
+    return newsentence;
+}
+string translateWord(string word)
+{
+    string newWord;
+    string first = "";
+    string second = "";
+    int V_holder = 10, P_holder = 0;
+    int placeHolder = 0;
+    char letter, x;
+    int i = 0;
+    int count = 0;
+
+    if (word[0] == 'y' || word[0] == 'Y')
+        i++;
+
+    while (i < word.length())
+    {
+        letter = word[i];
+
+        if (letter == 'q')
+            i++;
+
+        else if (isPunctuation(letter) == true)
+            P_holder = i;
+
+        else if (isVowel(letter) == true)
+        {
+            if (i < V_holder)
+                V_holder = i;
+        }
+
+        i++;
+    }
+splitWord(word, V_holder, first, second);
+
+    while (first[count])
+    {
+        x = first[count];
+
+        if (isupper(x))
+        {
+            x = tolower(x);
+            first[count] = x;
+            second[0] = toupper(second[0]);
+        }
+        count++;
+    }
+
+    if (first == "")
+        newWord = second + "way";
+
+    else
+        newWord = second + first + "ay";
+
+    if (P_holder != 0)
+        newWord += word[P_holder];
+
+    return newWord;
+}
+string getNextWord(string sentence, int placeHolder)
+{
+    string word = "";
+    char letter;
+    int i = placeHolder;
+    int length = sentence.length();
+
+    letter = sentence[i];
+    while (letter != ' ' && i < length)
+    {
+        if (i < sentence.length())
+            word += letter;
+
+        i++;
+        letter = sentence[i];
+    }
+
+    return word;
+}
+
+// split the word into two parts and add it to string first & string second
+void splitWord(string word, int V_holder, string & first, string & second)
+{
+    int wordlength = 0;
+    wordlength = word.length();
+
+    int i=0;
+    while (i < V_holder)
+    {
+        first += word[i];
+        i++;
+    }
+    while (isPunctuation(word[i]) == false && i < wordlength)
+    {
+        second += word[i];
+        i++;
+    }
+}
+// check for vowels
+bool isVowel(char letter)
+{
+    letter = tolower(letter);
+
+    bool vowel = false;
+
+    if (letter == 'y'  letter == 'a'  letter == 'e'  letter == 'i'  letter == 'o'  letter == 'u')
+        vowel = true;
+
+    return vowel;
+}
+
+// check for punctuation 
+bool isPunctuation(char letter)
+{
+    bool Punctuation = false;
+
+    if (letter == '?'  letter == '.'  letter == '!'  letter == ','  letter == '-'  letter == '"')
+        Punctuation = true;
+
+    return Punctuation;
+}
